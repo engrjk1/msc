@@ -1,14 +1,16 @@
 var http = require('http');
 var https = require ('https');
 var url = require('url');
-var config = require('./config');
+var config = require('./lib/config');
 var fs = require('fs');
 var StringDecoder = require('string_decoder').StringDecoder;
 var _data = require('./lib/data');
+var handlers = require('./lib/handlers');
+var helpers = require('./lib/helpers');
 
 //Testing 
 //@TODD delete this
-_data.update('test','newFile',{'name':'junaid'},function(err){
+_data.delete('test','newFile',function(err){
     console.log('this was the erro',err);
 });
 
@@ -64,10 +66,10 @@ httpsServer.listen(config.httpsPort,function(){
 
         var data = {
             'trimmedPath':trimmedPath,
-            'queryString' : queryStringObject,
+            'queryStringObject' : queryStringObject,
             'method' : method,
             'headers':headers,
-            'payload' : buffer
+            'payload' : helpers.parseJsonToObject(buffer)
         };
         // route the request to the handler specified in the router
 
@@ -90,17 +92,7 @@ httpsServer.listen(config.httpsPort,function(){
     });
 };
 
-
-
-var handlers = {}
-handlers.ping = function(data,callback){
-    //callback a http status code, and a payload object
-    callback(200,{});
-};
-
-handlers.notFound = function(data,callback){
-    callback(404,{});
-};
 var router = {
-    'ping' : handlers.ping
+    'ping' : handlers.ping,
+    'users' : handlers.users
 }

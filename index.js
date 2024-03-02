@@ -1,8 +1,44 @@
-var http = require('http')
-var url = require('url')
+var http = require('http');
+var https = require ('https');
+var url = require('url');
+var config = require('./config');
+var fs = require('fs');
 var StringDecoder = require('string_decoder').StringDecoder;
+var _data = require('./lib/data');
 
-var server = http.createServer(function(req,res){
+//Testing 
+//@TODD delete this
+_data.update('test','newFile',{'name':'junaid'},function(err){
+    console.log('this was the erro',err);
+});
+
+//instantiating HTTP Server 
+var httpServer = http.createServer(function(req,res){
+        unifiedServer(req,res);
+    });
+
+
+
+httpServer.listen(config.httpPort,function(){
+    console.log("the server is running on port: "+config.httpPort+" in " +config.envName +"mode");
+})
+
+
+//instantiate the https server 
+var httpsServerOptions = {
+    'key' : fs.readFileSync('./https/key.pem'),
+    'cert' : fs.readFileSync('./https/cert.pem')
+}
+var httpsServer = https.createServer(httpsServerOptions,function(req,res){
+    unifiedServer(req,res);
+});
+
+httpsServer.listen(config.httpsPort,function(){
+    console.log("the server is running on port: "+config.httpsPort+" in " +config.envName +"mode");
+})
+
+//all the server logice for both the http and htptps server 
+ var unifiedServer = function(req,res){
     var parsedUrl = url.parse(req.url, true);
     var path = parsedUrl.pathname;
     var trimmedPath = path.replace(/^\/+|\/+$/g,'');
@@ -51,26 +87,20 @@ var server = http.createServer(function(req,res){
             console.log('Returning this response: ',statusCode, paylaodString);
     
         });
-        
-        
-
     });
+};
 
-    });
 
-server.listen(3000,function(){
-    console.log("the server is running on port 3000");
-})
 
 var handlers = {}
-handlers.sample = function(data,callback){
+handlers.ping = function(data,callback){
     //callback a http status code, and a payload object
-    callback(406,{'name' : 'sample handler'});
+    callback(200,{});
 };
 
 handlers.notFound = function(data,callback){
-    callback(404);
+    callback(404,{});
 };
 var router = {
-    'sample' : handlers.sample
+    'ping' : handlers.ping
 }

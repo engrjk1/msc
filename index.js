@@ -10,15 +10,15 @@ var helpers = require('./lib/helpers');
 
 //Testing 
 //@TODD delete this
-_data.delete('test','newFile',function(err){
+/*
+    _data.delete('test','newFile',function(err){
     console.log('this was the erro',err);
-});
-
+    });
+*/
 //instantiating HTTP Server 
 var httpServer = http.createServer(function(req,res){
         unifiedServer(req,res);
     });
-
 
 
 httpServer.listen(config.httpPort,function(){
